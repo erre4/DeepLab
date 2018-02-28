@@ -1,4 +1,4 @@
-# DeepLab's purpose
+# DeepLab
 
 DeepLab is a free open software characterized by a front-end written in Java code and a back-end written in C. the objectives it aims to achieve relate to all that cocern the DeepLearning and Neural Networks, including different techniques of Supervised learning Unsupervised learning and Deep Reinforcement Learning.
 
