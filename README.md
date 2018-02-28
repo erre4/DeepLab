@@ -84,3 +84,7 @@ Among the objectives it aims to achieve, the main ones concern the implementatio
 # Running Mode
 
 DeepLab will run on both the CPU and the GPU, on the latter through its implementation in OpenCl and in the future perhaps also in Cuda. For the compilation of the code, a cointainer with OpenCl will probably be provided
+
+# History
+
+# Current RoadMap
