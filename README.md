@@ -9,75 +9,75 @@ DeepLab will try to provide adequate support through a graphical interface for t
 among the objectives it aims to achieve, the main ones concern the implementation of:
 
 
-MLP networks
+- MLP networks
 
-Convolutional networks
+- Convolutional networks
 
-Residual networks
+- Residual networks
 
-Recurrent networks
+- Recurrent networks
 
-Networking encoders
+- Networking encoders
 
-Capsule networks
+- Capsule networks
 
-Recursive networks
+- Recursive networks
 
-Local normalization
+- Local normalization
 
-Batch normalization
+- Batch normalization
 
-L1 regularization
+- L1 regularization
 
-L2 regularization
+- L2 regularization
 
-Dropout
+- Dropout
 
-Augmentation data
+- Augmentation data
 
-DQN
+- DQN
 
-DDQN
+- DDQN
 
-Genetic algorithm
+- Genetic algorithm
 
-DRL related to currently published papers
+- DRL related to currently published papers
 
-Neural structures like ImageNet AlexNet
+- Neural structures like ImageNet AlexNet
 
-...
+- ...
 
-Sigmoid function
+- Sigmoid function
 
-Tanh function
+- Tanh function
 
-Softmax function
+- Softmax function
 
-Relu function
+- Relu function
 
-...
+- ...
 
-MSE
+- MSE
 
-Cross-Entropy
+- Cross-Entropy
 
-likelihood
+- likelihood
 
-...
+- ...
 
-Gradient Descent
+- Gradient Descent
 
-Stochastic Gradient Descent
+- Stochastic Gradient Descent
 
-Momentum
+- Momentum
 
-Newton's method
+- Newton's method
 
-Adam optimization algorithm
+- Adam optimization algorithm
 
-...
+- ...
 
 
 
-and more.
+- and more.
 
