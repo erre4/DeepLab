@@ -6,7 +6,7 @@ DeepLab is a free open software characterized by a front-end written in java cod
 DeepLab will try to provide adequate support through a graphical interface for the implementation of neural networks to be used for the various learning techniques.
 
 
-among the objectives it aims to achieve, the main ones concern the implementation of:
+Among the objectives it aims to achieve, the main ones concern the implementation of:
 
 
 - MLP networks
@@ -81,3 +81,6 @@ among the objectives it aims to achieve, the main ones concern the implementatio
 
 - and more.
 
+# Running Mode
+
+DeepLab will run on both the CPU and the GPU, on the latter through its implementation in OpenCl and in the future perhaps also in Cuda. For the compilation of the code, a cointainer with OpenCl will probably be provided
