@@ -33,7 +33,7 @@ Among the objectives it aims to achieve, the main ones concern the implementatio
 
 - Dropout
 
-- Augmentation data
+- Data augmentation 
 
 - DQN
 
@@ -43,7 +43,7 @@ Among the objectives it aims to achieve, the main ones concern the implementatio
 
 - DRL related to currently published papers
 
-- Neural structures like ImageNet AlexNet
+- Neural structures such as ImageNet AlexNet
 
 - ...
 
