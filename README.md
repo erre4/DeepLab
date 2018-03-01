@@ -71,7 +71,7 @@ Among the objectives it aims to achieve, the main ones concern the implementatio
 
 - Momentum
 
-- Newton's method
+- Adagard
 
 - Adam optimization algorithm
 
