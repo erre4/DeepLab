@@ -8,7 +8,7 @@
  * 
  * Input:
  * 		@double*** w: first dimension: channel of the previous layer, each first dimension contains a mtrix of weights
- * 		@double b: vector of bias of the layer
+ * 		@double b: bias of the feature of the layer
  * 		@double*** input_value: first dimension: number of channels, each first dimension contains matrix of input per channel
  * 		@int channels: number of channels of input_values
  * 		@int input_rows: rows of each matrix per channel input_values[c]
@@ -35,7 +35,7 @@ matrix_z_computation_for_feature_of_convolutional_layer (double ***w,
 {
 
   double val = 0;
-  int t1, t2, i, j, c, k1 = 0, k2 = 0;
+  int t1, t2, i, j, c, k1, k2;
   double **temp1;
   double **temp2 = (double **) malloc (sizeof (double) * kernel_rows);
 
@@ -46,28 +46,25 @@ matrix_z_computation_for_feature_of_convolutional_layer (double ***w,
 
   double **f =
     (double **) malloc (sizeof (double *) *
-			(int) (stride_rows +
-			       (input_rows - kernel_rows) / stride_rows));
+			(int) (stride_rows + input_rows -
+			       kernel_rows) / stride_rows);
 
 
-  for (i = 0; i < (stride_rows + (input_rows - kernel_rows) / stride_rows);
-       i++)
+  for (i = 0; i < (stride_rows + input_rows - kernel_rows) / stride_rows; i++)
     {
 
       f[i] =
 	(double *) malloc (sizeof (double) *
-			   (int) (stride_cols +
-				  (input_cols - kernel_cols) / stride_cols));
+			   (int) (stride_cols + input_cols -
+				  kernel_cols) / stride_cols);
 
-      if (i)
-	k1 = i + stride_rows;
+      k1 = i - 1 + stride_rows;
 
-      for (j = 0;
-	   j < (stride_cols + (input_cols - kernel_cols) / stride_cols); j++)
+      for (j = 0; j < (stride_cols + input_cols - kernel_cols) / stride_cols;
+	   j++)
 	{
 
-	  if (j)
-	    k2 = j + stride_cols;
+	  k2 = j - 1 + stride_cols;
 
 
 	  for (c = 0; c < channels; c++)
@@ -96,4 +93,222 @@ matrix_z_computation_for_feature_of_convolutional_layer (double ***w,
 
   return f;
 
+}
+
+
+
+/*Description:
+ * this function returns the error of the output layer, it is seen as a vector, because
+ * the output is always seen as a vector (in a second moment will turn into a matrix)
+ * 
+ * Input:
+ * 		@double* d_c: derivative of the cost function
+ * 		@double* z: z of the otutput layer
+ * 		@int len: length of d_c and z
+ * 		@int flag: if 1 the activation function is sigmoid
+ * 				   2 for relu
+ * 				   3 for tanh
+ * Output:
+ * 		@double* out: vector of errors of the output fully connected layer
+ * */
+double *
+vector_error_computation_output_for_convolutional_layer (double *d_c,
+							 double *z, int len,
+							 int flag)
+{
+  double *d_act;
+  double *out;
+
+  switch (flag)
+    {
+    case 1:
+      d_act = vector_element_sigmoid_derivative_function (z, len);
+      break;
+    case 2:
+      d_act = vector_element_Relu_derivative_function (z, len);
+      break;
+    case 3:
+      d_act = vector_element_tanh_derivative_function (z, len);
+      break;
+    default:
+      printf ("flag doesn't match anyfunction\n");
+    }
+
+
+  out = dot (d_c, d_act, len);
+  free (d_act);
+  return out;
+}
+
+
+
+
+
+/*Description:
+ * error of a convolutional layer l, computing for 1 feature map of the layer l+1
+ * 
+ * Input:
+ * 		@double** delta: the error of layer l+1
+ * 		@double*** kernel: tensor of dimensions: channels(l lyaer)xkernel_rowsxkernel_cols
+ * 		@int channels: channels of layer l
+ * 		@int kernel_rows: kernel_rows
+ * 		@int kernel_cols: kernel columns
+ * 		@int stride_rows: stride used in the feed-forward passage
+ * 		@int stride_cols: stride used for the columns in the feed-forward passage
+ * 		@double*** d_input_values: the error computed until now for the layer l, dimensions: channelsxinput_rowsxinput_cols
+ * 		@int input_rows:rows of d_input_values
+ * 		@input_cols columns of d_input_values
+ * Output:
+ * 		NULL
+ * */
+void
+tensor_error_computation_for_convolutional_layer (double **delta,
+						  double ***kernel,
+						  int channels,
+						  int kernel_rows,
+						  int kernel_cols,
+						  int stride_rows,
+						  int stride_cols,
+						  double ***d_input_values,
+						  int input_rows,
+						  int input_cols)
+{
+
+  int t1, t2, i, j, c, k1, k2;
+
+
+
+  for (i = 0; i < (stride_rows + input_rows - kernel_rows) / stride_rows; i++)
+    {
+
+      k1 = i - 1 + stride_rows;
+
+      for (j = 0; j < (stride_cols + input_cols - kernel_cols) / stride_cols;
+	   j++)
+	{
+
+	  k2 = j - 1 + stride_cols;
+
+
+	  for (c = 0; c < channels; c++)
+	    {
+
+	      for (t1 = 0; t1 < kernel_rows; t1++)
+		{
+		  for (t2 = 0; t2 < kernel_cols; t2++)
+		    {
+		      d_input_values[c][k1 + t1][k2 + t2] +=
+			delta[i][j] * kernel[c][t1][t2];
+		    }
+		}
+	    }
+
+
+	}
+    }
+
+}
+
+
+
+
+/*Description:
+ * partial derivative of a kernel of a feature map of layer l
+ * 
+ * Input:
+ * 		@double** delta: the error of layer l
+ * 		
+ * 		@int channels: channels of layer l-1
+ * 		@int kernel_rows: kernel_rows
+ * 		@int kernel_cols: kernel columns
+ * 		@int stride_rows: stride used in the feed-forward passage
+ * 		@int stride_cols: stride used for the columns in the feed-forward passage
+ * 		@double*** input_values: the input values of layer l, dimensions: channelsxinput_rowsxinput_cols
+ * 		@int input_rows:rows of d_input_values
+ * 		@input_cols: columns of d_input_values
+ * Output:
+ * 		@double*** d_w: partial derivative tensor of weights of l of dimensions: channels(l lyaer)xkernel_rowsxkernel_cols
+ * */
+double ***
+tensor_partial_weights_derivative_for_convolutional_layer (double **delta,
+							   int channels,
+							   int kernel_rows,
+							   int kernel_cols,
+							   int stride_rows,
+							   int stride_cols,
+							   double
+							   ***input_values,
+							   int input_rows,
+							   int input_cols)
+{
+
+  int t1, t2, i, j, c, k1, k2;
+
+  double ***d_w = (double ***) malloc (sizeof (double **) * channels);
+
+  for (c = 0; c < channels; c++)
+    {
+
+      d_w[c] = (double **) malloc (sizeof (double *) * kernel_rows);
+
+      for (i = 0; i < kernel_rows; i++)
+	{
+	  d_w[c][i] = (double *) calloc (kernel_cols, sizeof (double));
+	}
+    }
+
+  for (i = 0; i < (stride_rows + input_rows - kernel_rows) / stride_rows; i++)
+    {
+
+
+      k1 = i - 1 + stride_rows;
+
+      for (j = 0; j < (stride_cols + input_cols - kernel_cols) / stride_cols;
+	   j++)
+	{
+
+	  k2 = j - 1 + stride_cols;
+
+
+	  for (c = 0; c < channels; c++)
+	    {
+
+
+	      for (t1 = 0; t1 < kernel_rows; t1++)
+		{
+		  for (t2 = 0; t2 < kernel_cols; t2++)
+		    {
+		      d_w[c][t1][t2] +=
+			delta[i][j] * input_values[c][k1 + t1][k2 + t2];
+		    }
+		}
+	    }
+
+
+	}
+    }
+
+  return d_w;
+
+
+
+}
+
+
+/*Description:
+ * partial derivative of bias of a feature map of layer l
+ * Input:
+ * 		@double** delta: the error of layer l
+ * 		@int rows: rows of delta
+ * 		@int cols: columns of delta
+ * Output:
+ * 		double sum of the values of delta
+ * */
+double
+single_element_partial_bias_derivative_for_convolutional_layer (double
+								**delta,
+								int rows,
+								int cols)
+{
+  return matrix_sum (delta, rows, cols);
 }
