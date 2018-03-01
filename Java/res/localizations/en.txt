@@ -1,0 +1,16 @@
+window.title=DeepLab Studio
+
+initInterface.menu.file=File
+initInterface.menu.create=Create
+initInterface.menu.edit=Edit
+initInterface.menu.source=Source
+initInterface.menu.options=Options
+initInterface.menu.run=Run
+initInterface.menu.help=Help
+
+initInterface.menu.item.new=New
+initInterface.menu.item.import=Import...
+initInterface.menu.item.export=Export...
+initInterface.menu.item.trainingFile=Training File...
+initInterface.menu.item.testFile=Test File...
+initInterface.menu.item.validationFile=Validation File...
