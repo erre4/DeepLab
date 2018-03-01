@@ -144,7 +144,8 @@ vector_error_computation_output_for_convolutional_layer (double *d_c,
 
 
 
-/*Description:a convolutional layer l, computing for 1 feature map of the layer l+1
+/*Description:
+ * error of a convolutional layer l, computing for 1 feature map of the layer l+1
  * 
  * Input:
  * 		@double** delta: the error of layer l+1
@@ -156,7 +157,7 @@ vector_error_computation_output_for_convolutional_layer (double *d_c,
  * 		@int stride_cols: stride used for the columns in the feed-forward passage
  * 		@double*** d_input_values: the error computed until now for the layer l, dimensions: channelsxinput_rowsxinput_cols
  * 		@int input_rows:rows of d_input_values
- * 		@input cols_ columns of d_input_values
+ * 		@input_cols columns of d_input_values
  * Output:
  * 		NULL
  * */
@@ -206,4 +207,108 @@ tensor_error_computation_for_convolutional_layer (double **delta,
 	}
     }
 
+}
+
+
+
+
+/*Description:
+ * partial derivative of a kernel of a feature map of layer l
+ * 
+ * Input:
+ * 		@double** delta: the error of layer l
+ * 		
+ * 		@int channels: channels of layer l-1
+ * 		@int kernel_rows: kernel_rows
+ * 		@int kernel_cols: kernel columns
+ * 		@int stride_rows: stride used in the feed-forward passage
+ * 		@int stride_cols: stride used for the columns in the feed-forward passage
+ * 		@double*** input_values: the input values of layer l, dimensions: channelsxinput_rowsxinput_cols
+ * 		@int input_rows:rows of d_input_values
+ * 		@input_cols: columns of d_input_values
+ * Output:
+ * 		@double*** d_w: partial derivative tensor of weights of l of dimensions: channels(l lyaer)xkernel_rowsxkernel_cols
+ * */
+double ***
+tensor_partial_weights_derivative_for_convolutional_layer (double **delta,
+							   int channels,
+							   int kernel_rows,
+							   int kernel_cols,
+							   int stride_rows,
+							   int stride_cols,
+							   double
+							   ***input_values,
+							   int input_rows,
+							   int input_cols)
+{
+
+  int t1, t2, i, j, c, k1, k2;
+
+  double ***d_w = (double ***) malloc (sizeof (double **) * channels);
+
+  for (c = 0; c < channels; c++)
+    {
+
+      d_w[c] = (double **) malloc (sizeof (double *) * kernel_rows);
+
+      for (i = 0; i < kernel_rows; i++)
+	{
+	  d_w[c][i] = (double *) calloc (kernel_cols, sizeof (double));
+	}
+    }
+
+  for (i = 0; i < (stride_rows + input_rows - kernel_rows) / stride_rows; i++)
+    {
+
+
+      k1 = i - 1 + stride_rows;
+
+      for (j = 0; j < (stride_cols + input_cols - kernel_cols) / stride_cols;
+	   j++)
+	{
+
+	  k2 = j - 1 + stride_cols;
+
+
+	  for (c = 0; c < channels; c++)
+	    {
+
+
+	      for (t1 = 0; t1 < kernel_rows; t1++)
+		{
+		  for (t2 = 0; t2 < kernel_cols; t2++)
+		    {
+		      d_w[c][t1][t2] +=
+			delta[i][j] * input_values[c][k1 + t1][k2 + t2];
+		    }
+		}
+	    }
+
+
+	}
+    }
+
+  return d_w;
+
+
+
+}
+
+
+/*Description:
+ * partial derivative of bias of a feature map of layer l
+ * Input:
+ * 		@double** delta: the error of layer l
+ * 		@int rows: rows of delta
+ * 		@int cols: columns of delta
+ * Output:
+ * 		double sum of the values of delta
+ * */
+double
+single_element_partial_bias_derivative_for_convolutional_layer (double
+								**delta,
+								int rows,
+								int cols)
+{
+  return matrix_sum (delta, rows, cols);
 }
